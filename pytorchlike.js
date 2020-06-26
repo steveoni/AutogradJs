@@ -540,7 +540,11 @@ var y = new Tensor(2,4,require_grad=false);
 y.setFrom([2,3,4,5,6,7,8,1])
 
 var m =model.forward(x)
-console.log(model.models[1])
+
+var l = new Loss(1,model.out)
+console.log(model.models[0].dout, l.out)
+l.backward()
+console.log(model.models[0].dout, l.out)
 // model.forward(x)
 // model.out.backward(1)
 // console.log(x.dout);
