@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>Work Space</title>
+    </head>
+    <body>
+
+        <script src="autograd.js"></script>
+        <script>
+            var x = new Tensor(-2,false);
+            var y = new Tensor(5,true);
+            var z = new Tensor(-4,true);
+
+            var q = new add(x,y);
+
+            var f = new multi(q,z);
+
+            f.grad(1)
+            f.backward()
+            console.log(f);
+        </script>
+    </body>
+</html>

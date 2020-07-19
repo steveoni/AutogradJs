@@ -36,6 +36,7 @@ var autograd = {};
             this.out[ix] = v;
         },
         setFrom: function (arr) {
+            utils.assert(arr.length == this.n*this.d,"shape not compatible")
             for (var i = 0, n = arr.length; i < n; i++) {
                 this.out[i] = arr[i];
             }
@@ -184,8 +185,8 @@ var autograd = {};
 
     function Linear(in_dim,out_dim){
 
-        this.W = new Tensor(in_dim,out_dim,true).randn(0,0.008);
-        this.b = new Tensor(out_dim,1,true).randn(0,0.008);
+        this.W = new Tensor(in_dim,out_dim,true).randn(0,0.99);
+        this.b = new Tensor(out_dim,1,true).randn(0,0.99);
     
         this.func_name = "<Linear>";
         this.require_grad = true;
@@ -329,67 +330,6 @@ var autograd = {};
         }
     }
 
-    function Sequential(models){
-
-        this.models = models;
-    }
-
-    Sequential.prototype = {
-
-        forward : function(x){
-    
-            
-            this.out = this.models[0].forward(x);
-    
-            for(var i=0;i<this.models.length;i++){
-    
-                if( i==0){
-                    continue;
-                }
-                this.out = this.models[i].forward(this.out);
-            }
-        },
-    
-    }
-
-    function Loss(target, predict){
-
-        this.model = predict;
-        this.out =  - Math.log(predict.out[target]);
-        this.y = target;
-    }
-
-    Loss.prototype = {
-
-        backward : function(){
-    
-            this.model.backward(this.y);
-            
-        }
-    }
-
-    function OptimSGD(model,lr){
-
-        this.model = model;
-        this.lr = lr;
-    
-    }
-    
-    OptimSGD.prototype = {
-
-        step : function(){
-    
-            for(var i in this.model.models){
-                
-                // console.log(model)
-                if("update" in this.model.models[i]){
-                    // console.log("here")
-                    this.model.models[i].update(this.lr);
-                }
-            }
-        }
-    }
-
     global.Mat = Mat;
     global.Tensor = Tensor;
     global.add = add;
@@ -397,29 +337,5 @@ var autograd = {};
     global.Linear = Linear;
     global.ReLU = ReLU;
     global.Softmax = Softmax;
-    global.Sequential = Sequential;
-    global.Loss = Loss;
-    global.OptimSGD = OptimSGD;
-
+    
 })(autograd)
-
-var model = new autograd.Sequential([
-    new autograd.Linear(2,3),
-    new autograd.ReLU(),
-    new autograd.Linear(3,2),
-    new autograd.Softmax()
-]);
-
-var x = new autograd.Tensor(1,2,require_grad=true)
-x.setFrom([2,3]);
-
-var y = new autograd.Tensor(2,4,require_grad=false);
-y.setFrom([2,3,4,5,6,7,8,1])
-
-var m =model.forward(x)
-
-var l = new autograd.Loss(1,model.out)
-console.log(model.models[3], l.out)
-l.backward()
-console.log(model.models[0].dout, l.out)
-// model.forward(x)
