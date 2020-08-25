@@ -1,3 +1,15 @@
+const Network = require("./model_graph.js");
+const utils = require("./utils.js")
+
+function name(arg){
+
+    if("name" in arg){
+        arg.name += utils.randi(1,6)
+    }else{
+        arg.func_name += utils.randi(1,6)
+    }
+}
+
 function Tensor(arr,require_grad){
 
     this.item = arr;
@@ -19,11 +31,13 @@ function add(x,y){
 
     this.x = x;
     this.y = y;
+    name(x)
+    name(y)
     this.require_grad=true;
 
     this.item = x.item + y.item
     this.gradv = 0;
-    this.name = "<Add>";
+    this.func_name = "<Add>";
 
 }
 
@@ -64,10 +78,12 @@ function multi(x, y) {
     this.x = x;
     this.y = y;
 
+    name(x)
+    name(y)
     this.gradv = 0;
 
     this.require_grad = true;
-    this.name = "<Multi>"
+    this.func_name = "<Multi>"
 
 }
 
@@ -110,4 +126,5 @@ var f = new multi(q,z);
 
 f.grad(1)
 f.backward()
-console.log(f);
+
+console.log(new Network(f))

@@ -70,3 +70,94 @@ for(let i=0; i< epoch; i++){
 
 let embed_weight = get_weight(model.models[0].W)
 console.log(embed_weight[0].length)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function Word2Vec(kwargs={}){
+
+    let text = kwargs["text"]
+    let stopwords = kwargs["stopwords"]
+    this.embed_dim = kwargs["embed_dim"] || 50
+    let window = kwargs["window"] || 5
+
+
+    let text_lower = text.toLocaleLowerCase()
+    
+    let text_list = text_lower.split("\n")
+
+    if(!stopwords){
+        let stopwords = ["a","in","when","the","of","is","who"]
+    }
+
+    let [word_list, all_text] = word_utils.gen_word(window,text_list);
+    this.vocab = word_utils.unique_word(all_text)
+    this.n_words = word_utils.obj_len(vocab);
+
+    let [data, label] = word_utils.create_data(word_list)
+    this.data = data
+    this.label = label
+
+}
+
+Word2Vec.prototype = {
+
+    train: function(epoch, lr=0.01){
+
+        this.model = new Sequential([
+            new Linear(this.n_words,this.embed_dim),
+            new Linear(this.embed_dim,this.n_words),
+            new Softmax()
+        ]);
+
+        let optim = new OptimSGD(this.model,lr=lr)
+
+        for(let i=0; i< epoch; i++){
+
+            let total_loss = 0;
+            for(let j=0; j < this.data.length; j++){
+        
+                let x_data = this.data[j]
+                let y_data = this.label[j]
+        
+                let x = new Tensor(1,this.n_words, false);
+                x.setFrom(x_data)
+        
+                this.model.forward(x)
+        
+                // console.log(-Math.log(model.out.out[y_data-1]))
+                let loss = new Loss(y_data-1,this.model)
+        
+                // console.log(loss.out);
+                total_loss += loss.out
+        
+                loss.backward()
+        
+                optim.step();
+        
+                optim.grad_zero()
+        
+            }
+        
+            console.log(`for epoch ${i} Loss is ${total_loss/data.length}`)
+        }
+    },
+
+    embed_weight: function(){
+
+            let weight = this.model.models[0].get_weight()
+
+            return weight;
+    }
+}
+
