@@ -1,5 +1,5 @@
 # AutogradJs
-A simple autograd and pytorch like frame work in Javascript
+A simple autograd and pytorch like frame work in Javascript. Inspired by [Convnet.js](https://github.com/karpathy/convnetjs)
 
 Work through the code on Observablehq interactive notebook [here](https://observablehq.com/@steveoni2/brief-intro-to-autograd-in-javascript)
 
